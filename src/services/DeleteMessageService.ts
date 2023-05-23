@@ -137,10 +137,15 @@ export default class DeleteMessageService {
         },
       });
       if (message) {
-        await db.message.delete({
-          where: { id: message.id },
+        // await db.message.delete({
+        //   where: { id: message.id },
+        // });
+        // await pair.tg.deleteMessages(message.tgMsgId);
+        await pair.tg.sendMessage({
+          replyTo: message.tgMsgId,
+          message: '<i>消息被撤回</i>',
+          silent: true,
         });
-        await pair.tg.deleteMessages(message.tgMsgId);
       }
     }
     catch (e) {
