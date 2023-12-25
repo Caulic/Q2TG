@@ -10,7 +10,7 @@ import {
   Quotable,
   segment,
   Sendable,
-} from 'oicq';
+} from 'icqq';
 import { fetchFile, getBigFaceUrl, getImageUrlByMd5 } from '../utils/urls';
 import { ButtonLike, FileLike } from 'telegram/define';
 import { getLogger, Logger } from 'log4js';
@@ -38,7 +38,7 @@ import { QQMessageSent } from '../types/definitions';
 import ZincSearch from 'zincsearch-node';
 import { speech as AipSpeechClient } from 'baidu-aip-sdk';
 import random from '../utils/random';
-import { escapeXml } from 'oicq/lib/common';
+import { escapeXml } from 'icqq/lib/common';
 
 const NOT_CHAINABLE_ELEMENTS = ['flash', 'record', 'video', 'location', 'share', 'json', 'xml', 'poke'];
 
@@ -161,6 +161,8 @@ export default class ForwardService {
             try {
               if (elem.type === 'image' && elem.asface
                 && !(elem.file as string).toLowerCase().endsWith('.gif')
+                // 同时存在文字消息就不作为 sticker 发送
+                && !event.message.some(it => it.type === 'text')
                 // 防止在 TG 中一起发送多个 sticker 失败
                 && event.message.filter(it => it.type === 'image').length === 1
               ) {
@@ -398,7 +400,7 @@ export default class ForwardService {
               message: message.message,
             });
           }
-          const fake = await pair.qq.makeForwardMsg(msgList);
+          const fake = await this.oicq.makeForwardMsgSelf(msgList);
           chain.push({
             type: 'xml',
             id: 60,

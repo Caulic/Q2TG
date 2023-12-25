@@ -13,6 +13,8 @@ import TelegramSession from '../models/TelegramSession';
 import { LogLevel } from 'telegram/extensions/Logger';
 import { BigInteger } from 'big-integer';
 import { IterMessagesParams } from 'telegram/client/messages';
+import { PromisedNetSockets, PromisedWebSockets } from 'telegram/extensions';
+import { ConnectionTCPFull, ConnectionTCPObfuscated } from 'telegram/network';
 
 type MessageHandler = (message: Api.Message) => Promise<boolean | void>;
 type ServiceMessageHandler = (message: Api.MessageService) => Promise<boolean | void>;
@@ -51,10 +53,15 @@ export default class Telegram {
           socksType: 5,
           ip: process.env.PROXY_IP,
           port: parseInt(process.env.PROXY_PORT),
+          ...(process.env.PROXY_USERNAME && { username: process.env.PROXY_USERNAME }),
+          ...(process.env.PROXY_PASSWORD && { password: process.env.PROXY_PASSWORD }),
         } : undefined,
+        autoReconnect: true,
+        networkSocket: process.env.TG_CONNECTION === 'websocket' ? PromisedWebSockets : PromisedNetSockets,
+        connection: process.env.TG_CONNECTION === 'websocket' ? ConnectionTCPObfuscated : ConnectionTCPFull,
       },
     );
-    this.client.logger.setLevel(LogLevel.WARN);
+    // this.client.logger.setLevel(LogLevel.WARN);
   }
 
   public static async create(startArgs: UserAuthParams | BotAuthParams, appName = 'Q2TG') {

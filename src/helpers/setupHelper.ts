@@ -1,4 +1,4 @@
-import { Platform } from 'oicq';
+import { Platform } from 'icqq';
 
 export default {
   convertTextToPlatform(text: string): Platform {
@@ -26,4 +26,12 @@ export default {
         return '';
     }
   },
+  checkSignApiAddress(signApi: string) {
+    try {
+      new URL(signApi);
+      return signApi;
+    } catch (err) {
+      return "";
+    }
+  }
 };
